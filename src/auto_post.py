@@ -24,9 +24,9 @@ from dotenv import load_dotenv
 
 CONST_MAX_POST = 15 # số bài đăng tối đa trong 1 phiên
 DEFAULT_TIME_SLEEP = 60  # phút — fallback nếu sheet info thiếu time_break
-SESSION_START_HOUR = 0 # giờ đăng bài
+SESSION_START_HOUR = 9 # giờ đăng bài
 SESSION_END_HOUR = 0 # giờ kết thúc phiên đăng bài
-POST_BUFFER_SECONDS = 180 # thời gian chờ giữa 2 bài
+POST_BUFFER_SECONDS = 180 # thời gian chờ giữa 2 bài 
 
 REQUIRED_COLUMNS = ("content", "sub_content", "image_url", "video_url") # các cột bắt buộc trong file Excel
 THREADS_API_BASE = "https://graph.threads.net/v1.0" # base URL của API Threads
@@ -453,8 +453,7 @@ def run_daily_cycle(file_path, user_id, access_token):
 
 if __name__ == "__main__":
     load_dotenv(
-        r"C:\Users\vinhdt912\Documents\thuy_onedrive\OneDrive\Giáo Ngọng Businesss"
-        r"\Tools\Threads\number_la_gi\.env"
+        r"C:\Users\vinhdt912\Documents\thuy_onedrive\OneDrive\Tools\Threads\number_la_gi\vocab_data.xlsx"
     )
 
     user_id = os.getenv("USER_ID", "me")
@@ -465,8 +464,7 @@ if __name__ == "__main__":
         )
 
     file_path = (
-        r"C:\Users\vinhdt912\Documents\thuy_onedrive\OneDrive\Giáo Ngọng Businesss"
-        r"\Tools\Threads\number_la_gi\vocab_data.xlsx"
+        r"C:\Users\vinhdt912\Documents\thuy_onedrive\OneDrive\Tools\Threads\number_la_gi\vocab_data.xlsx"
     )
 
     print(load_vocab_df(file_path).head())
