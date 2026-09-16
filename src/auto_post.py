@@ -453,7 +453,7 @@ def run_daily_cycle(file_path, user_id, access_token):
 
 if __name__ == "__main__":
     load_dotenv(
-        r"C:\Users\vinhdt912\Documents\thuy_onedrive\OneDrive\Tools\Threads\number_la_gi\vocab_data.xlsx"
+        r"C:\Users\vinhdt912\Documents\thuy_onedrive\OneDrive\Tools\Threads\number_la_gi\.env"
     )
 
     user_id = os.getenv("USER_ID", "me")
