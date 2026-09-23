@@ -6,7 +6,7 @@ Excel `bac_day_vocab_data.xlsx` — Sheet1, cột:
   - sub_content  : nội dung reply (luồng trả lời bài chính)
   - image_url    : URL công khai của ảnh (JPEG/PNG)
   - video_url    : URL công khai của video
-  - upload_time  : tự ghi sau khi đăng thành công (để bỏ qua bài đã đăng)
+  - upload_time  : tự ghi vào ô sau khi đăng thành công (để bỏ qua bài đã đăng)
 
 Sheet `info`:
   - time_break   : số phút chờ giữa 2 bài (thay CONST_TIME_SLEEP)
@@ -22,6 +22,7 @@ import pandas as pd
 import random
 import requests
 from dotenv import load_dotenv
+from openpyxl import load_workbook
 
 CONST_MAX_POST = 15 # số bài đăng tối đa trong 1 phiên
 DEFAULT_TIME_SLEEP = 60  # phút — fallback nếu sheet info thiếu time_break
@@ -148,11 +149,23 @@ def load_time_break(file_path):
         return DEFAULT_TIME_SLEEP
 
 
-def save_vocab_df(df, file_path):
-    with pd.ExcelWriter(
-        file_path, engine="openpyxl", mode="a", if_sheet_exists="overlay"
-    ) as writer:
-        df.to_excel(writer, sheet_name="Sheet1", index=False)
+def write_upload_time(file_path, row_idx, uploaded_at):
+    """Ghi upload_time vào đúng ô Excel, không ghi đè cả sheet."""
+    workbook = load_workbook(file_path)
+    worksheet = workbook["Sheet1"]
+    header_cells = next(worksheet.iter_rows(min_row=1, max_row=1))
+    col_idx = None
+    for cell in header_cells:
+        if cell.value == "upload_time":
+            col_idx = cell.column
+            break
+    if col_idx is None:
+        col_idx = (worksheet.max_column or 0) + 1
+        worksheet.cell(row=1, column=col_idx, value="upload_time")
+
+    excel_row = int(row_idx) + 2
+    worksheet.cell(row=excel_row, column=col_idx, value=uploaded_at)
+    workbook.save(file_path)
 
 
 def seconds_until_session_end(session_end):
@@ -419,11 +432,9 @@ def run_posting_session(file_path, user_id, access_token, session_start, session
         row_idx = pending.index[0]
         print(f"\n--- Đăng bài #{posted_count + 1} (dòng {row_idx}) ---")
         if post_content_chain(df_origin, row_idx, user_id, access_token):
+            uploaded_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            write_upload_time(file_path, row_idx, uploaded_at)
             df_origin = load_vocab_df(file_path)
-            df_origin.loc[row_idx, "upload_time"] = datetime.now().strftime(
-                "%Y-%m-%d %H:%M:%S"
-            )
-            save_vocab_df(df_origin, file_path)
             df_filtered = filter_session_posts(df_origin, session_start, session_end)
             print(f"Đã đăng trong phiên: {len(df_filtered)}/{CONST_MAX_POST}")
 
